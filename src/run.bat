@@ -68,8 +68,23 @@ if /i not "%SOURCE_FILE:~-2%"==".c" (
     set "FLAGS=%FLAGS% -lpsapi"
 )
 
-REM 编译
-%COMPILER% %FLAGS% -o "%OUTPUT%" "%SOURCE_FILE%"
+REM 检查源文件是否使用了utils工具类，如果使用了则自动链接
+REM 简化方案：如果源文件是C++且utils文件存在，就尝试链接（编译时会自动处理未使用的链接）
+set "UTILS_FILES="
+if exist "utils\mnist_loader.cpp" (
+    if /i not "%SOURCE_FILE:~-2%"==".c" (
+        REM C++文件自动链接utils工具类（如果编译报错说明没用到，可以忽略）
+        set "UTILS_FILES=utils\mnist_loader.cpp"
+        echo [自动链接utils工具类] !UTILS_FILES!
+    )
+)
+
+REM 编译（如果使用了utils，一起编译链接）
+if defined UTILS_FILES (
+    %COMPILER% %FLAGS% -o "%OUTPUT%" "%SOURCE_FILE%" %UTILS_FILES%
+) else (
+    %COMPILER% %FLAGS% -o "%OUTPUT%" "%SOURCE_FILE%"
+)
 
 if %errorlevel% neq 0 (
     echo 编译失败！
