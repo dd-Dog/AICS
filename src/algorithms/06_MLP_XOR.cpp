@@ -164,7 +164,7 @@ void train(const vector<vector<int>>& train_data, const vector<int>& train_tag, 
                 //注意最后乘的是ReLU的导数
                 // double relu_grad = hiden_input[k]>0? 1.0: 0.0;
                 double tanh_grad = 1-hiden_input[k]*hiden_input[k];
-                double delta_hide = delta_out*w2[k][0]*tanh_grad;
+                double delta_hide = delta_out*w2[k][0]*tanh_grad;//要反向乘以权重矩阵的转置
                 for(std::size_t l=0; l<w1[0].size(); l++){
                     gradient_w1[k][l] += delta_hide*input[l];
                 }  

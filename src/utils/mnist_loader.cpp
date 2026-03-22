@@ -20,6 +20,15 @@ int readBigEndianUInt32(std::ifstream &f) {
     return static_cast<int>(value);
 }
 
+void normalizeMNISTImages(MNISTImages& images) {
+    const double denom = 127.5; // 归一化范围到 [-1, 1]
+    images.data_normalized.resize(images.data.size());
+    for (std::size_t i = 0; i < images.data.size(); ++i) {
+        images.data_normalized[i] =
+            static_cast<double>(images.data[i]) / denom - 1.0;
+    }
+}
+
 MNISTImages loadMNISTImages(const std::string &path, bool verbose) {
     // 只读方式打开（二进制），避免因为默认 in|out 模式而要求写权限
     std::ifstream f(path, std::ios::binary);
@@ -43,6 +52,11 @@ MNISTImages loadMNISTImages(const std::string &path, bool verbose) {
 
     images.data.resize(total_pixels);
     f.read(reinterpret_cast<char*>(images.data.data()), images.data.size());
+    if (!f) {
+        throw std::runtime_error("Failed to read MNIST image pixels: " + path);
+    }
+
+    normalizeMNISTImages(images);
 
     if (verbose) {
         std::cout << "magic=" << images.magic

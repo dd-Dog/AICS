@@ -19,6 +19,8 @@ struct MNISTImages {
     int rows;
     int cols;
     std::vector<unsigned char> data;
+    // 归一化处理后的数据：x/127.5 - 1.0
+    std::vector<double> data_normalized;
 };
 
 /**
@@ -34,6 +36,10 @@ struct MNISTLabels {
 };
 
 namespace MNISTUtils {
+/**
+ * 对 MNISTImages::data 做归一化，并填充 MNISTImages::data_no4malized
+ */
+void normalizeMNISTImages(MNISTImages& images);
 
 /**
  * 读取大端格式的32位无符号整数
